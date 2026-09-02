@@ -104,4 +104,5 @@ spec:
   natGWOutgoingEnabled: true
 ```
 
-设置为 `false` 时，Pod 访问 VPC 外地址的流量会 SNAT 为节点主网卡的 IP。设置为 `true` 时，Pod 流量跳过节点 SNAT，并按照 Pod 子网的 VPC 路由通过已经配置好的 NAT 网关出口。
+设置为 `false` 时，Pod 访问 VPC 外地址的流量会 SNAT 为节点主网卡的 IP。设置为 `true` 时，Pod 流量跳过节点 SNAT，并按照 Pod
+子网的 VPC 路由通过已经配置好的 NAT 网关出口。

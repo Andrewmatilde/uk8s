@@ -5,7 +5,8 @@ CIDR、Service CIDR等基本概念。
 
 ## 1. 配置集群网络信息
 
-登录控制台**私有网络 VPC**页面，进行 VPC 网络及子网网段的规划（[私有网络 VPC 文档](vpc/README)）。默认情况下，Pod 与其所在的 Node 使用同一个 VPC 子网；启用 Pod 独立子网后，两类子网需要分别规划。计算方法请参见[集群 IP 网段容量规划](/uk8s/network/ip_capacity)。
+登录控制台**私有网络 VPC**页面，进行 VPC 网络及子网网段的规划（[私有网络 VPC 文档](vpc/README)）。默认情况下，Pod 与其所在的 Node
+使用同一个 VPC 子网；启用 Pod 独立子网后，两类子网需要分别规划。计算方法请参见[集群 IP 网段容量规划](/uk8s/network/ip_capacity)。
 
 ## 2. 创建专有版 UK8S 集群
 
