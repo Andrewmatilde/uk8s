@@ -55,7 +55,7 @@ UK8S是一项基于Kubernetes的容器管理服务，你可以在UK8S上部署�
 
 - [kubectl命令行简介](/uk8s/manageviakubectl/intro_of_kubectl)
 - [安装及配置kubectl](/uk8s/manageviakubectl/connectviakubectl)
-- [使用web kubectl](/uk8s/manageviakubectl/webterminal)
+- [使用 Web kubectl](/uk8s/manageviakubectl/webterminal)
 - [创建PVC](/uk8s/manageviakubectl/createpvc)
 - [创建Service](/uk8s/manageviakubectl/createservice)
 
