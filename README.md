@@ -21,8 +21,8 @@
   - 通过 kubectl 管理集群
     - [kubectl 命令行简介](/uk8s/manageviakubectl/intro_of_kubectl)
     - [安装及配置 kubectl](/uk8s/manageviakubectl/connectviakubectl)
-    - [使用 Web kubectl](/uk8s/manageviakubectl/webterminal)
-    - [集群凭证管理与更新](/uk8s/manageviakubectl/reset_token)
+    - [使用 web kubectl](/uk8s/manageviakubectl/webterminal)
+    - [集群更新凭证](/uk8s/manageviakubectl/reset_token)
     - [创建 PVC](/uk8s/manageviakubectl/createpvc)
     - [创建 Service](/uk8s/manageviakubectl/createservice)
     - [StatefulSet 示例](/uk8s/manageviakubectl/sts_example)

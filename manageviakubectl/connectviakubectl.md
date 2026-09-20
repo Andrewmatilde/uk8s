@@ -1,139 +1,93 @@
-## 安装及配置 kubectl
+## 安装及配置kubectl
 
-kubectl 是 Kubernetes 的命令行工具。本文介绍如何安装客户端、从 UK8S 控制台获取
-kubeconfig，并连接集群。如果只需临时操作，可使用[Web kubectl](/uk8s/manageviakubectl/webterminal)。
+> 获取凭证需要相应的 IAM 权限，子账号还需获得集群的 RBAC 授权，详见[授权管理](/uk8s/auth/rbac)。
 
-### 一、准备工作
+本文主要演示如何在UCloud云主机上安装配置kubectl并管理Kubernetes集群。如果机器上已安装兼容版本的kubectl，可跳过安装步骤。
 
-- 确认已选择正确的项目和地域，并能在 UK8S 控制台查看目标集群。
-- 确认当前账号具有获取凭证的 IAM 权限；子账号还需获得集群内资源的 RBAC 授权，详见
-  [IAM 授权管理](/uk8s/auth/IAM)和[RBAC 授权管理](/uk8s/auth/rbac)。
-- 在集群详情的「概览」页查看「K8S版本」，安装与集群兼容的 kubectl。
-- 确认运行 kubectl 的机器能够访问所选 APIServer 地址及端口。
+**云主机环境**
 
-| 连接方式 | 适用环境                               | 凭证入口                 |
-| ---- | ---------------------------------- | -------------------- |
-| 内网连接 | 同 VPC 的云主机，或已通过专线、VPN 等方式打通集群内网的机器 | 「APIServer」右侧的「凭证」   |
-| 外网连接 | 无法直接访问集群内网、且集群已提供外网 APIServer 的机器  | 「外网APIServer」右侧的「凭证」 |
+操作系统：linux，windows请移步[官方文档](https://kubernetes.io/docs/tasks/tools/install-kubectl/)。
 
-以控制台实际显示为准。如果没有外网 APIServer，请使用内网连通的机器或 Web kubectl。 安装客户端下载需要访问下载源，但使用内网凭证管理集群不要求云主机开通外网。
+网络：使用内网凭证时，需与集群同VPC或已打通内网；使用外网凭证时，需能访问外网APIServer。下载安装包时需能访问下载源。
 
-![概览页中的 Kubernetes 版本与内外网凭证入口，资源信息已遮盖](/images/manageviakubectl/overview-current.png)
+### 一、安装kubectl
 
-### 二、安装 kubectl
-
-建议选择与集群相同次版本的客户端。kubectl 与 kube-apiserver 的版本偏差应在一个次版本以内， 详见
-[Kubernetes 版本偏差策略](https://kubernetes.io/releases/version-skew-policy/#kubectl)。 不要直接安装最新版本而忽略集群版本。
-
-以下以 Linux 为例。将 `KUBECTL_VERSION` 替换为目标版本；`v1.34.5` 仅为示例。
+1. 在集群「概览」中查看K8S版本，选择相同次版本的kubectl，版本偏差不要超过一个次版本。以下以Linux amd64和v1.34.5为例，请按实际版本及架构修改，勿直接安装不兼容的最新版本。
 
 ```bash
 KUBECTL_VERSION="v1.34.5"
-
-# x86_64 机器使用 amd64；aarch64 / ARM64 机器改为 arm64。
-KUBECTL_ARCH="amd64"
-
-curl -fLO "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/${KUBECTL_ARCH}/kubectl"
-curl -fLO "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/${KUBECTL_ARCH}/kubectl.sha256"
+curl -fLO "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl"
 ```
 
-校验下载内容：
+2. 添加执行权限
 
-```bash
-echo "$(cat kubectl.sha256)  kubectl" | sha256sum --check
+```
+chmod +x ./kubectl
 ```
 
-只有显示 `kubectl: OK` 后，才继续安装：
+3. 移至工作路径
+
+```
+sudo mv ./kubectl /usr/local/bin/kubectl
+```
+
+4.输入kubectl version --client，确认客户端安装成功。
 
 ```bash
-sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
 kubectl version --client
 ```
 
-其他安装方式和操作系统请参考官方说明： [Linux](https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/)、
-[macOS](https://kubernetes.io/docs/tasks/tools/install-kubectl-macos/)、
-[Windows](https://kubernetes.io/docs/tasks/tools/install-kubectl-windows/)。同样需要选择兼容版本。
+**备注**：如果您需要在ubuntu或其他linux发行版安装kubectl，亦或使用yum安装，可以参见[官方文档](https://kubernetes.io/docs/tasks/tools/install-kubectl/)。
 
-### 三、获取并保存 kubeconfig
+### 二、获取并配置集群凭证
 
-1. 在 UK8S 集群列表中点击目标集群的「详情」，进入「概览」。
-2. 在「APIServer 信息」中，按所需连接方式点击对应的「凭证」。
-3. 在「内网集群凭证」或「外网集群凭证」弹窗中点击 **Copy**，复制完整的 KubeConfig。
+可以通过控制台获取当前账号的集群凭证。集群内访问同样需要身份认证和授权，并非免凭证访问。
 
-![内网集群凭证弹窗，完整配置内容已遮盖](/images/manageviakubectl/credentials-internal-current.png)
+1. 通过Console获取集群凭证
 
-![外网集群凭证弹窗，完整配置内容已遮盖](/images/manageviakubectl/credentials-external-current.png)
+进入集群详情的「概览」页，在「APIServer 信息」中点击对应的「凭证」：内网连接选择「APIServer」，外网连接选择「外网APIServer」。如果没有外网入口，请使用内网连接或[Web kubectl](/uk8s/manageviakubectl/webterminal)。
 
-> kubeconfig 可能包含 Token 或客户端私钥，持有者可使用其中的身份访问集群。 请妥善保管，不要提交到代码仓库、粘贴到工单或公开截图中。上图已遮盖真实配置。
+![概览页的内外网凭证入口，资源信息已遮盖](/images/manageviakubectl/overview-current.png)
 
-建议为每个集群保存独立文件，避免覆盖已有的 `~/.kube/config`。以下命令适用于 Linux/macOS：
+在弹窗中点击Copy，复制完整的KubeConfig。创建本地目录后，将配置保存为`~/.kube/config`；如果该文件已存在，请先备份，避免覆盖其他集群配置。
 
 ```bash
-mkdir -p "$HOME/.kube"
-chmod 700 "$HOME/.kube"
+mkdir -p ~/.kube
+chmod 700 ~/.kube
 ```
 
-使用文本编辑器将复制的完整 YAML 保存到 `~/.kube/uk8s-demo.yaml`，再设置文件权限：
+![内网集群凭证，正文已遮盖](/images/manageviakubectl/credentials-internal-current.png)
 
-```bash
-chmod 600 "$HOME/.kube/uk8s-demo.yaml"
+![外网集群凭证，正文已遮盖](/images/manageviakubectl/credentials-external-current.png)
+
+保存后执行`chmod 600 ~/.kube/config`。配置可能包含Token或客户端私钥，请勿提交到代码仓库或公开展示。
+
+2. 通过SCP从Master节点下载集群凭证到本地
+
+仅适用于允许SSH访问Master节点的专有版集群。确认有权使用节点上的管理凭证并备份本地已有配置后，获取Master节点IP，在本地机器执行：
+
+```
+scp root@YOURMASTERIP:~/.kube/config ~/.kube/config
 ```
 
-`uk8s-demo.yaml` 是本地文件名示例，可自行修改。保留原始缩进，不要把截图中的遮盖区域当作配置。 Windows 用户可保存到
-`%USERPROFILE%\.kube\uk8s-demo.yaml`，并限制文件访问权限。
+### 三、访问集群
 
-### 四、验证连接
+你可以执行以下命令来验证kubectl是否可以成功访问集群信息；
 
-先显式指定配置文件检查上下文，再查询集群。以下命令不会修改集群资源：
-
-```bash
-kubectl --kubeconfig="$HOME/.kube/uk8s-demo.yaml" config current-context
-kubectl --kubeconfig="$HOME/.kube/uk8s-demo.yaml" cluster-info
-kubectl --kubeconfig="$HOME/.kube/uk8s-demo.yaml" get pods -n default
+```
+kubectl cluster-info
 ```
 
-如果账号只被授权访问特定命名空间，将 `default` 换成已授权的命名空间。 `No resources found` 表示查询成功但没有匹配资源；`Forbidden`
-表示当前身份没有相应权限。
+### 四、设置命令自动补全
 
-验证成功后，可在当前终端指定默认使用的文件，后续命令无需重复传入 `--kubeconfig`：
+在kubectl所在节点执行安装
 
-```bash
-export KUBECONFIG="$HOME/.kube/uk8s-demo.yaml"
-kubectl config current-context
+```
+yum install bash-completion -y
 ```
 
-上述环境变量仅影响当前终端及其子进程。未设置 `KUBECONFIG`、也未指定 `--kubeconfig` 时， kubectl 默认读取 `~/.kube/config`。多个集群的管理方式见
-[配置多集群访问](https://kubernetes.io/docs/tasks/access-application-cluster/configure-access-multiple-clusters/)。
+kubectl支持命令自动补全，执行以下命令即可开启。
 
-### 五、常见连接问题
-
-| 现象                      | 排查方向                                       |
-| ----------------------- | ------------------------------------------ |
-| 连接超时、`no route to host` | 检查所选内外网入口、路由、VPN 及安全规则，确认可访问配置中的地址和端口      |
-| `connection refused`    | 确认地址、端口及 APIServer 状态，避免使用过期的地址            |
-| `Unauthorized`          | 检查凭证是否过期、被刷新或撤销，并重新获取当前账号的凭证               |
-| `Forbidden`             | 身份认证通常已通过，但缺少目标资源或命名空间的 RBAC 权限            |
-| `x509` 证书错误             | 检查系统时间、凭证有效期、CA 和访问地址是否匹配；重新获取对应入口的完整配置    |
-| 访问到其他集群                 | 检查 `--kubeconfig`、`KUBECONFIG` 与当前 context |
-
-不要用 `--insecure-skip-tls-verify` 绕过证书错误。凭证更新方法见 [集群凭证管理与更新](/uk8s/manageviakubectl/reset_token)。
-
-集群内的程序同样需要身份认证和授权，通常使用 ServiceAccount；“在集群内访问”不等于免凭证。
-
-### 六、设置命令补全（可选）
-
-Bash 需先安装并加载系统的 `bash-completion`，再在当前终端执行：
-
-```bash
-source <(kubectl completion bash)
 ```
-
-Zsh 可执行：
-
-```zsh
-autoload -Uz compinit
-compinit
-source <(kubectl completion zsh)
+echo "source <(kubectl completion bash)" >> ~/.bashrc
 ```
-
-需要永久生效时，将适用的命令加入对应 Shell 的启动文件，避免重复添加。
