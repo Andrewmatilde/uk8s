@@ -47,7 +47,7 @@ kubectl version --client
 
 进入集群详情的「概览」页，在「APIServer 信息」中点击对应的「凭证」：内网连接选择「APIServer」，外网连接选择「外网APIServer」。如果没有外网入口，请使用内网连接或[Web kubectl](/uk8s/manageviakubectl/webterminal)。
 
-![概览页的内外网凭证入口，资源信息已遮盖](/images/manageviakubectl/overview-current.png)
+![概览页的内外网凭证入口](/images/manageviakubectl/overview-current.png)
 
 在弹窗中点击Copy，复制完整的KubeConfig。创建本地目录后，将配置保存为`~/.kube/config`；如果该文件已存在，请先备份，避免覆盖其他集群配置。
 
@@ -56,9 +56,9 @@ mkdir -p ~/.kube
 chmod 700 ~/.kube
 ```
 
-![内网集群凭证，正文已遮盖](/images/manageviakubectl/credentials-internal-current.png)
+![内网集群凭证](/images/manageviakubectl/credentials-internal-current.png)
 
-![外网集群凭证，正文已遮盖](/images/manageviakubectl/credentials-external-current.png)
+![外网集群凭证](/images/manageviakubectl/credentials-external-current.png)
 
 保存后执行`chmod 600 ~/.kube/config`。配置可能包含Token或客户端私钥，请勿提交到代码仓库或公开展示。
 
